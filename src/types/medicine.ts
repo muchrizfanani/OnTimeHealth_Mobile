@@ -1,14 +1,16 @@
-export type MedicineStatus = 'taken' | 'snoozed' | 'missed' | 'pending';
-
-export type MedicineForm = 'Tablet' | 'Kapsul' | 'Sirup' | 'Suntik';
+// TYPE & INTERFACE
+export type MedicineStatus = "taken" | "pending" | "missed"; // union type
 
 export interface Medicine {
-  id: string;
+  readonly id: string; // tidak bisa diubah setelah dibuat
   name: string;
-  dose: string;
-  form: MedicineForm;
+  dosage: string;
   time: string;
-  instruction: string; // misal: "Sesudah makan" / "Sebelum makan"
   status: MedicineStatus;
-  stock?: number;
+  note?: string; // opsional
+}
+
+export interface DayAdherence {
+  day: string;
+  percent: number;
 }
