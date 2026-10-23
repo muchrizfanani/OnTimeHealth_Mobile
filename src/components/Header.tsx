@@ -1,62 +1,71 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors } from '../styles/theme';
+import { colors } from '../constants/styles';
 
 interface HeaderProps {
   userName: string;
   subtitle?: string;
+  avatarLetter?: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ userName, subtitle }) => {
+export const Header: React.FC<HeaderProps> = ({
+  userName,
+  subtitle = 'Jangan lupa minum obat tepat waktu',
+  avatarLetter = 'S',
+}) => {
   return (
-    <View style={styles.headerContainer}>
-      <View>
-        <Text style={styles.greetingText}>Halo, {userName} 👋</Text>
-        <Text style={styles.subtitleText}>
-          {subtitle || 'Jangan lupa minum obat tepat waktu ya!'}
-        </Text>
+    <View style={styles.container}>
+      <View style={styles.textContainer}>
+        <Text style={styles.greeting}>Selamat pagi,</Text>
+        <Text style={styles.name}>{userName}</Text>
+        <Text style={styles.subtitle}>{subtitle}</Text>
       </View>
-      <View style={styles.avatarCircle}>
-        <Text style={styles.avatarText}>{userName.charAt(0).toUpperCase()}</Text>
+      <View style={styles.avatar}>
+        <Text style={styles.avatarText}>{avatarLetter}</Text>
       </View>
     </View>
   );
 };
 
-// ==========================================
-// EXTERNAL STYLES: Menggunakan StyleSheet.create terpisah
-// ==========================================
 const styles = StyleSheet.create({
-  headerContainer: {
-    paddingVertical: 16,
+  container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    marginBottom: 8,
+    paddingVertical: 12,
   },
-  greetingText: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: colors.textPrimary,
+  textContainer: {
+    flex: 1,
   },
-  subtitleText: {
+  greeting: {
     fontSize: 13,
-    color: colors.textSecondary,
-    marginTop: 4,
+    color: colors.muted,
+    fontWeight: '600',
   },
-  avatarCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
+  name: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: colors.text,
+    marginTop: 2,
+  },
+  subtitle: {
+    fontSize: 13,
+    color: colors.muted,
+    marginTop: 2,
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.primaryLight,
     alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: colors.border,
   },
   avatarText: {
-    color: colors.white,
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontWeight: '800',
+    color: colors.primary,
   },
 });
