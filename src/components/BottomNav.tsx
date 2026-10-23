@@ -11,10 +11,16 @@ interface NavItem {
   route: string;
 }
 
+// 4 Menu Utama sesuai Rancangan:
+// 1. Beranda (Dashboard)
+// 2. Pengingat (Notifikasi & Konfirmasi Minum Obat)
+// 3. Pendamping (Caretaker Mode & Monitoring Keluarga)
+// 4. Laporan / Info (Riwayat, Kepatuhan, Edukasi)
 const items: NavItem[] = [
   { label: "Beranda", icon: "home", path: "/", route: "/" },
   { label: "Pengingat", icon: "alarm", path: "/reminder", route: "/reminder" },
   { label: "Keluarga", icon: "people", path: "/caregiver", route: "/caregiver" },
+  { label: "Edukasi", icon: "book-outline", path: "/explore", route: "/explore" },
 ];
 
 export default function BottomNav() {
@@ -27,9 +33,24 @@ export default function BottomNav() {
       {items.map((item) => {
         const active = pathname === item.route;
         return (
-          <Pressable key={item.label} style={styles.navItem} onPress={() => router.replace(item.path)}>
-            <Ionicons name={item.icon} size={26} color={active ? colors.primary : colors.muted} />
-            <Text style={[styles.navLabel, { color: active ? colors.primary : colors.muted }]}>{item.label}</Text>
+          <Pressable
+            key={item.label}
+            style={styles.navItem}
+            onPress={() => router.replace(item.path)}
+          >
+            <Ionicons
+              name={item.icon}
+              size={24}
+              color={active ? colors.primary : colors.muted}
+            />
+            <Text
+              style={[
+                styles.navLabel,
+                { color: active ? colors.primary : colors.muted },
+              ]}
+            >
+              {item.label}
+            </Text>
           </Pressable>
         );
       })}
