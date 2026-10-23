@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../context/AppContext";
+import { colors, shadows } from "../styles/theme";
 
 type UserRole = "patient" | "caregiver";
 
@@ -32,7 +33,7 @@ export default function LoginScreen() {
       password: "123",
       name: "Ibu Siti Rahma",
       roleDesc:
-        "Sebagai Pasien: Menampilkan jadwal minum obat pribadi dan konfirmasi alarm harian.",
+        "Sebagai Pasien: Menampilkan jadwal minum obat pribadi, notifikasi alarm harian, dan konfirmasi dosis.",
     },
     caregiver: {
       email: "keluarga@ontime.com",
@@ -59,30 +60,28 @@ export default function LoginScreen() {
     switchRole(role);
 
     if (role === "patient") {
-      // Masuk sebagai Pasien -> Dashboard Jadwal Utama
       router.replace("/");
     } else {
-      // Masuk sebagai Pendamping -> Halaman Mode Keluarga
       router.replace("/caregiver");
     }
   };
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: "#F8FAFC" }}
+      style={{ flex: 1, backgroundColor: colors.background }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView
         contentContainerStyle={[
           styles.container,
-          { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 24 },
+          { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 },
         ]}
         showsVerticalScrollIndicator={false}
       >
         {/* Header Logo & Title */}
         <View style={styles.headerBox}>
           <View style={styles.logoBadge}>
-            <Ionicons name="medical" size={36} color="#0D9488" />
+            <Ionicons name="medical" size={36} color={colors.primary} />
           </View>
           <Text style={styles.title}>OnTimeHealth</Text>
           <Text style={styles.subtitle}>
@@ -90,7 +89,7 @@ export default function LoginScreen() {
           </Text>
         </View>
 
-        {/* Pilihan Peran Akun (Role Selector): Pasien vs Pendamping */}
+        {/* Pilihan Peran Akun: Pasien vs Pendamping */}
         <Text style={styles.sectionLabel}>Pilih Peran Akun Anda:</Text>
         <View style={styles.roleContainer}>
           {/* Opsi 1: Pasien */}
@@ -104,19 +103,19 @@ export default function LoginScreen() {
             <View
               style={[
                 styles.roleIconWrap,
-                role === "patient" && { backgroundColor: "#0D9488" },
+                role === "patient" && { backgroundColor: colors.primary },
               ]}
             >
               <Ionicons
                 name="person"
                 size={22}
-                color={role === "patient" ? "#FFF" : "#64748B"}
+                color={role === "patient" ? "#FFF" : colors.textSecondary}
               />
             </View>
             <Text
               style={[
                 styles.roleTitle,
-                role === "patient" && { color: "#0F766E" },
+                role === "patient" && { color: colors.primaryDark },
               ]}
             >
               Pasien
@@ -135,19 +134,19 @@ export default function LoginScreen() {
             <View
               style={[
                 styles.roleIconWrap,
-                role === "caregiver" && { backgroundColor: "#0D9488" },
+                role === "caregiver" && { backgroundColor: colors.primary },
               ]}
             >
               <Ionicons
                 name="heart-half"
                 size={22}
-                color={role === "caregiver" ? "#FFF" : "#64748B"}
+                color={role === "caregiver" ? "#FFF" : colors.textSecondary}
               />
             </View>
             <Text
               style={[
                 styles.roleTitle,
-                role === "caregiver" && { color: "#0F766E" },
+                role === "caregiver" && { color: colors.primaryDark },
               ]}
             >
               Pendamping
@@ -158,7 +157,7 @@ export default function LoginScreen() {
 
         {/* Keterangan Perbedaan Peran */}
         <View style={styles.roleExplanationBox}>
-          <Ionicons name="information-circle" size={18} color="#0F766E" />
+          <Ionicons name="information-circle" size={18} color={colors.primary} />
           <Text style={styles.roleExplanationText}>
             {DUMMY_ACCOUNTS[role].roleDesc}
           </Text>
@@ -170,7 +169,7 @@ export default function LoginScreen() {
           <TextInput
             style={styles.input}
             placeholder="contoh@email.com"
-            placeholderTextColor="#94A3B8"
+            placeholderTextColor={colors.textMuted}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -181,7 +180,7 @@ export default function LoginScreen() {
           <TextInput
             style={styles.input}
             placeholder="••••••••"
-            placeholderTextColor="#94A3B8"
+            placeholderTextColor={colors.textMuted}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -216,26 +215,30 @@ const styles = StyleSheet.create({
     width: 68,
     height: 68,
     borderRadius: 34,
-    backgroundColor: "#CCFBF1",
+    backgroundColor: colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 10,
+    borderWidth: 2,
+    borderColor: colors.borderTeal,
+    ...shadows.subtle,
   },
   title: {
     fontSize: 26,
     fontWeight: "900",
-    color: "#0F172A",
+    color: colors.textPrimary,
   },
   subtitle: {
     fontSize: 13,
-    color: "#64748B",
+    color: colors.textSecondary,
     textAlign: "center",
     marginTop: 4,
+    maxWidth: 280,
   },
   sectionLabel: {
     fontSize: 14,
     fontWeight: "800",
-    color: "#0F172A",
+    color: colors.textPrimary,
     marginBottom: 10,
   },
   roleContainer: {
@@ -245,16 +248,17 @@ const styles = StyleSheet.create({
   },
   roleCard: {
     flex: 1,
-    backgroundColor: "#FFF",
-    borderWidth: 2,
-    borderColor: "#E2E8F0",
+    backgroundColor: colors.cardBackground,
+    borderWidth: 1.5,
+    borderColor: colors.border,
     borderRadius: 18,
     padding: 14,
     alignItems: "center",
+    ...shadows.subtle,
   },
   roleCardActive: {
-    borderColor: "#0D9488",
-    backgroundColor: "#F0FDFA",
+    borderColor: colors.primary,
+    backgroundColor: colors.primaryLightest,
   },
   roleIconWrap: {
     width: 44,
@@ -267,12 +271,12 @@ const styles = StyleSheet.create({
   roleTitle: {
     fontSize: 15,
     fontWeight: "800",
-    color: "#0F172A",
+    color: colors.textPrimary,
     marginTop: 8,
   },
   roleDesc: {
     fontSize: 11,
-    color: "#64748B",
+    color: colors.textSecondary,
     textAlign: "center",
     marginTop: 2,
   },
@@ -280,56 +284,58 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "#F0FDFA",
-    borderRadius: 12,
+    backgroundColor: colors.primaryLightest,
+    borderRadius: 14,
     padding: 12,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: "#99F6E4",
+    borderColor: colors.borderTeal,
   },
   roleExplanationText: {
     flex: 1,
     fontSize: 12,
-    color: "#0F766E",
+    color: colors.primaryDark,
     fontWeight: "600",
     lineHeight: 16,
   },
   formCard: {
-    backgroundColor: "#FFF",
-    borderRadius: 20,
+    backgroundColor: colors.cardBackground,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: colors.border,
     padding: 20,
+    ...shadows.card,
   },
   inputLabel: {
     fontSize: 13,
-    fontWeight: "700",
-    color: "#0F172A",
+    fontWeight: "800",
+    color: colors.textPrimary,
   },
   input: {
     borderWidth: 1.5,
-    borderColor: "#E2E8F0",
-    borderRadius: 12,
+    borderColor: colors.border,
+    borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
     marginTop: 6,
     fontSize: 15,
-    color: "#0F172A",
+    color: colors.textPrimary,
     backgroundColor: "#F8FAFC",
   },
   loginBtn: {
-    backgroundColor: "#0D9488",
-    borderRadius: 14,
-    paddingVertical: 15,
+    backgroundColor: colors.primary,
+    borderRadius: 16,
+    paddingVertical: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    marginTop: 18,
+    marginTop: 20,
+    ...shadows.glow,
   },
   loginBtnText: {
     color: "white",
     fontSize: 15,
-    fontWeight: "800",
+    fontWeight: "900",
   },
 });

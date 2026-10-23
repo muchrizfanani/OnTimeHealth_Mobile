@@ -12,6 +12,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import BottomNav from "../components/BottomNav";
 import { useApp } from "../context/AppContext";
+import { colors, shadows } from "../styles/theme";
 
 interface HealthArticle {
   id: string;
@@ -99,30 +100,30 @@ export default function ExploreScreen() {
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerBadge}>
-              <Ionicons name="book" size={14} color="#0D9488" />
+              <Ionicons name="book" size={13} color={colors.primary} />
               <Text style={styles.headerBadgeText}>EDUKASI MEDIS</Text>
             </View>
             <Text style={[styles.title, isSeniorMode && { fontSize: 26 }]}>
-              Pusat Edukasi & Penggunaan Obat Aman
+              Pusat Edukasi Obat
             </Text>
             <Text style={styles.subtitle}>
-              Informasi terpercaya untuk membantu Anda dan keluarga mengonsumsi obat dengan tepat.
+              Informasi terpercaya untuk membantu Anda dan keluarga mengonsumsi obat dengan aman & tepat.
             </Text>
           </View>
 
           {/* Search Box */}
           <View style={styles.searchBar}>
-            <Ionicons name="search" size={20} color="#94A3B8" />
+            <Ionicons name="search" size={18} color={colors.textMuted} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Cari artikel / tips obat..."
-              placeholderTextColor="#94A3B8"
+              placeholder="Cari artikel / tips minum obat..."
+              placeholderTextColor={colors.textMuted}
               value={search}
               onChangeText={setSearch}
             />
             {search.length > 0 && (
               <Pressable onPress={() => setSearch("")}>
-                <Ionicons name="close-circle" size={18} color="#94A3B8" />
+                <Ionicons name="close-circle" size={18} color={colors.textMuted} />
               </Pressable>
             )}
           </View>
@@ -151,7 +152,7 @@ export default function ExploreScreen() {
           </View>
 
           {/* Daftar Artikel Edukasi */}
-          <View style={{ gap: 14, marginTop: 14 }}>
+          <View style={{ gap: 12, marginTop: 14 }}>
             {filteredArticles.map((item) => {
               const isExpanded = expandedId === item.id;
               return (
@@ -162,7 +163,7 @@ export default function ExploreScreen() {
                 >
                   <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
                     <View style={styles.articleIconWrap}>
-                      <Ionicons name={item.icon} size={22} color="#0D9488" />
+                      <Ionicons name={item.icon} size={22} color={colors.primary} />
                     </View>
                     <View style={{ flex: 1, marginLeft: 12 }}>
                       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
@@ -176,7 +177,7 @@ export default function ExploreScreen() {
                     </View>
                   </View>
 
-                  {/* Isi Lengkap yang Bisa Dibuka/Tutup (Accordion) */}
+                  {/* Isi Lengkap (Accordion) */}
                   {isExpanded && (
                     <View style={styles.expandedContent}>
                       <Text style={[styles.articleFullText, isSeniorMode && { fontSize: 16, lineHeight: 24 }]}>
@@ -187,11 +188,11 @@ export default function ExploreScreen() {
                         onPress={() =>
                           Alert.alert(
                             "Konsultasi Apoteker / Dokter",
-                            "Fitur konsultasi langsung seputar obat ini akan menghubungkan Anda ke pusat layanan kesehatan mitra."
+                            "Layanan tanya apoteker menghubungkan Anda ke pusat informasi farmasi mitra OnTimeHealth."
                           )
                         }
                       >
-                        <Ionicons name="chatbubbles-outline" size={16} color="#0D9488" />
+                        <Ionicons name="chatbubbles-outline" size={16} color={colors.primary} />
                         <Text style={styles.askDoctorText}>Tanyakan ke Apoteker</Text>
                       </Pressable>
                     </View>
@@ -201,7 +202,7 @@ export default function ExploreScreen() {
                     <Ionicons
                       name={isExpanded ? "chevron-up" : "chevron-down"}
                       size={18}
-                      color="#94A3B8"
+                      color={colors.textMuted}
                     />
                   </View>
                 </Pressable>
@@ -218,7 +219,7 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: colors.background,
   },
   content: {
     flex: 1,
@@ -231,111 +232,110 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    backgroundColor: "#CCFBF1",
+    backgroundColor: colors.primaryLight,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
     alignSelf: "flex-start",
     marginBottom: 8,
+    borderWidth: 1,
+    borderColor: colors.borderTeal,
   },
   headerBadgeText: {
     fontSize: 11,
     fontWeight: "800",
-    color: "#0F766E",
+    color: colors.primaryDark,
   },
   title: {
     fontSize: 22,
     fontWeight: "900",
-    color: "#0F172A",
+    color: colors.textPrimary,
   },
   subtitle: {
     fontSize: 13,
-    color: "#64748B",
+    color: colors.textSecondary,
     marginTop: 4,
     lineHeight: 18,
   },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFF",
+    backgroundColor: colors.cardBackground,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
-    borderRadius: 14,
+    borderColor: colors.border,
+    borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 10,
     gap: 8,
+    ...shadows.subtle,
   },
   searchInput: {
     flex: 1,
     fontSize: 14,
-    color: "#0F172A",
+    color: colors.textPrimary,
   },
   chipRow: {
     flexDirection: "row",
     gap: 8,
-    marginTop: 14,
+    marginTop: 12,
   },
   categoryChip: {
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 12,
-    backgroundColor: "#FFF",
+    backgroundColor: colors.cardBackground,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: colors.border,
   },
   categoryChipActive: {
-    backgroundColor: "#0D9488",
-    borderColor: "#0D9488",
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   categoryChipText: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#64748B",
+    color: colors.textSecondary,
   },
   categoryChipTextActive: {
     color: "#FFF",
   },
   articleCard: {
-    backgroundColor: "#FFF",
+    backgroundColor: colors.cardBackground,
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    borderColor: colors.border,
+    ...shadows.subtle,
   },
   articleCardActive: {
-    borderColor: "#0D9488",
+    borderColor: colors.borderTeal,
   },
   articleIconWrap: {
     width: 44,
     height: 44,
     borderRadius: 14,
-    backgroundColor: "#CCFBF1",
+    backgroundColor: colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
   },
   articleCategory: {
     fontSize: 10,
     fontWeight: "800",
-    color: "#0D9488",
+    color: colors.primary,
   },
   articleTime: {
     fontSize: 11,
-    color: "#94A3B8",
+    color: colors.textMuted,
   },
   articleTitle: {
     fontSize: 15,
     fontWeight: "800",
-    color: "#0F172A",
+    color: colors.textPrimary,
     marginTop: 2,
   },
   articleSummary: {
     fontSize: 12,
-    color: "#64748B",
+    color: colors.textSecondary,
     marginTop: 4,
     lineHeight: 16,
   },
@@ -347,25 +347,25 @@ const styles = StyleSheet.create({
   },
   articleFullText: {
     fontSize: 13,
-    color: "#334155",
+    color: colors.textSecondary,
     lineHeight: 20,
   },
   askDoctorBtn: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    backgroundColor: "#F0FDFA",
-    borderRadius: 10,
+    backgroundColor: colors.primaryLightest,
+    borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
     marginTop: 12,
     alignSelf: "flex-start",
     borderWidth: 1,
-    borderColor: "#99F6E4",
+    borderColor: colors.borderTeal,
   },
   askDoctorText: {
     fontSize: 12,
-    fontWeight: "700",
-    color: "#0F766E",
+    fontWeight: "800",
+    color: colors.primaryDark,
   },
 });

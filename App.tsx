@@ -15,11 +15,12 @@ import { dummyMedicines } from './src/data/dummyMedicines';
 import { Medicine, MedicineStatus } from './src/types/medicine';
 import { hitungKepatuhan } from './src/utils/medicineLogic';
 import { globalStyles } from './src/styles/globalStyles';
+import { colors } from './src/styles/theme';
 
 export default function App() {
   const [medicines, setMedicines] = useState<Medicine[]>(dummyMedicines);
 
-  // Toggle status saat card/badge ditekan untuk demonstrasi live demo inline style
+  // Toggle status saat card/badge ditekan
   const handleToggleStatus = (id: string) => {
     setMedicines((prev) =>
       prev.map((med) => {
@@ -43,13 +44,13 @@ export default function App() {
 
   return (
     <SafeAreaView style={globalStyles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F7F9FC" />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
       <View style={globalStyles.container}>
         <Header userName="Rizky Fanani" subtitle="Jadwal Pengingat Obat Hari Ini" />
 
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 24 }}
+          contentContainerStyle={{ paddingBottom: 28 }}
         >
           {/* Ringkasan Kepatuhan (Summary Card) */}
           <SummaryCard
@@ -61,9 +62,8 @@ export default function App() {
           {/* Section List Obat */}
           <View style={globalStyles.rowBetween}>
             <Text style={globalStyles.sectionTitle}>Daftar Obat Hari Ini</Text>
-            {/* Inline Style: Keterangan tips interaktif */}
-            <Text style={{ fontSize: 12, color: '#64748B', fontStyle: 'italic' }}>
-              *Klik badge untuk ubah status
+            <Text style={{ fontSize: 12, color: colors.textSecondary, fontStyle: 'italic' }}>
+              *Klik kartu untuk ubah status
             </Text>
           </View>
 
@@ -79,10 +79,11 @@ export default function App() {
           <View style={{ marginTop: 12 }}>
             <PrimaryButton
               title="+ Tambah Jadwal Obat Baru"
+              icon="add"
               onPress={() =>
                 Alert.alert(
-                  'Tambah Obat',
-                  'Fitur form penambahan obat akan diimplementasikan.'
+                  'Tambah Obat Baru',
+                  'Silakan gunakan form wizard tambah obat untuk memasukkan data dosis & frekuensi.'
                 )
               }
             />

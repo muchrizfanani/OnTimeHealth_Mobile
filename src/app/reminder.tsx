@@ -14,6 +14,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import BottomNav from "../components/BottomNav";
 import { useApp } from "../context/AppContext";
+import { colors, shadows } from "../styles/theme";
 
 export default function ModernReminderScreen() {
   const router = useRouter();
@@ -40,11 +41,11 @@ export default function ModernReminderScreen() {
   const handleTake = () => {
     takeMedicine(activeMed.id);
     Alert.alert(
-      "✅ Dosis Tercatat Selesai",
-      `Obat ${activeMed.name} telah diminum. Stok berkurang otomatis menjadi ${
+      "✅ Dosis Berhasil Dicatat",
+      `Obat ${activeMed.name} telah diminum. Stok fisik otomatis berkurang menjadi ${
         activeMed.stock !== undefined ? Math.max(0, activeMed.stock - 1) : 0
       } dosis. Kepatuhan Anda hari ini bertambah!`,
-      [{ text: "Kembali ke Dashboard", onPress: () => router.replace("/") }]
+      [{ text: "Kembali ke Beranda", onPress: () => router.replace("/") }]
     );
   };
 
@@ -81,70 +82,82 @@ export default function ModernReminderScreen() {
           },
         ]}
       >
-        {/* Top Bar Navigasi (Memenuhi rubrik back() & canGoBack()) */}
+        {/* Top Bar Navigasi */}
         <View style={styles.topBar}>
           <Pressable
             style={styles.backBtn}
             onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))}
           >
-            <Ionicons name="arrow-back" size={20} color="#0F172A" />
-            <Text style={styles.backBtnText}>Dashboard</Text>
+            <Ionicons name="arrow-back" size={20} color={colors.textPrimary} />
+            <Text style={styles.backBtnText}>Kembali</Text>
           </Pressable>
 
           <View style={styles.liveBadge}>
             <View style={styles.pulsingDot} />
-            <Text style={styles.liveBadgeText}>Alarm Aktif</Text>
+            <Text style={styles.liveBadgeText}>Alarm Pengingat Aktif</Text>
           </View>
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ alignItems: "center" }}>
-          {/* Visual Hero Alarm */}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ alignItems: "center", paddingBottom: 20 }}
+        >
+          {/* Visual Hero Alarm (Glowing concentric mint rings) */}
           <View style={styles.heroCircleOuter}>
-            <View style={styles.heroCircleInner}>
-              <Ionicons
-                name={
-                  activeMed.form === "Sirup"
-                    ? "water"
-                    : activeMed.form === "Injeksi"
-                    ? "color-wand"
-                    : "medical"
-                }
-                size={54}
-                color="#0D9488"
-              />
+            <View style={styles.heroCircleMiddle}>
+              <View style={styles.heroCircleInner}>
+                <Ionicons
+                  name={
+                    activeMed.form === "Sirup"
+                      ? "water"
+                      : activeMed.form === "Injeksi"
+                      ? "color-wand"
+                      : activeMed.form === "Kapsul"
+                      ? "medical"
+                      : "disc"
+                  }
+                  size={52}
+                  color={colors.primary}
+                />
+              </View>
             </View>
           </View>
 
           {/* Time & Title */}
-          <Text style={[styles.timeLabel, isSeniorMode && { fontSize: 32 }]}>
+          <Text style={[styles.timeLabel, isSeniorMode && { fontSize: 34 }]}>
             {activeMed.time} WIB
           </Text>
           <Text style={[styles.medName, isSeniorMode && { fontSize: 28 }]}>
             {activeMed.name}
           </Text>
-          <Text style={[styles.medDetails, isSeniorMode && { fontSize: 18 }]}>
-            {activeMed.dosage} • {activeMed.form} • {activeMed.note}
-          </Text>
+
+          {/* Dose & Instruction Pill */}
+          <View style={styles.instructionPill}>
+            <Ionicons name="information-circle" size={16} color={colors.primary} />
+            <Text style={[styles.medDetails, isSeniorMode && { fontSize: 16 }]}>
+              {activeMed.dosage} • {activeMed.form} • {activeMed.note || "Sesudah makan"}
+            </Text>
+          </View>
 
           {/* Stock & Warning Indicator */}
           <View style={styles.stockCard}>
             <Ionicons
               name={activeMed.stock !== undefined && activeMed.stock <= 3 ? "warning" : "cube"}
               size={18}
-              color={activeMed.stock !== undefined && activeMed.stock <= 3 ? "#EF4444" : "#0D9488"}
+              color={activeMed.stock !== undefined && activeMed.stock <= 3 ? colors.statusMissed : colors.primary}
             />
             <Text
               style={[
                 styles.stockCardText,
-                activeMed.stock !== undefined && activeMed.stock <= 3 && { color: "#EF4444" },
+                activeMed.stock !== undefined && activeMed.stock <= 3 && { color: colors.statusMissed },
               ]}
             >
-              Sisa Stok: <Text style={{ fontWeight: "800" }}>{activeMed.stock ?? 10} dosis</Text>
-              {activeMed.stock !== undefined && activeMed.stock <= 3 ? " (Segera Refill!)" : ""}
+              Sisa Stok Fisik: <Text style={{ fontWeight: "800" }}>{activeMed.stock ?? 10} dosis</Text>
+              {activeMed.stock !== undefined && activeMed.stock <= 3 ? " (Segera Isi Ulang!)" : ""}
             </Text>
           </View>
 
-          {/* 3 OPSI AKSI CEPAT (PRD P0) */}
+          {/* 3 OPSI AKSI UTAMA */}
           <View style={styles.actionSection}>
             {/* OPSI 1: SUDAH MINUM */}
             <Pressable
@@ -162,7 +175,7 @@ export default function ModernReminderScreen() {
               style={[styles.secondaryActionBtn, isSeniorMode && { paddingVertical: 18 }]}
               onPress={() => setSnoozeModalVisible(true)}
             >
-              <Ionicons name="timer-outline" size={22} color="#0F766E" />
+              <Ionicons name="timer-outline" size={22} color={colors.primaryDark} />
               <Text style={[styles.secondaryActionText, isSeniorMode && { fontSize: 17 }]}>
                 Tunda Alarm (Snooze)
               </Text>
@@ -178,23 +191,23 @@ export default function ModernReminderScreen() {
         </ScrollView>
       </View>
 
-      {/* MODAL SNOOZE (PILIH 5, 10, 15 MENIT) */}
+      {/* MODAL SNOOZE */}
       <Modal visible={snoozeModalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <Text style={styles.modalTitle}>Tunda Berapa Menit?</Text>
             <Text style={styles.modalSubtitle}>
-              Pengingat akan dibunyikan kembali secara otomatis.
+              Pengingat obat {activeMed.name} akan dibunyikan kembali secara otomatis.
             </Text>
 
             <View style={{ gap: 10, marginTop: 14 }}>
-              {[5, 10, 15].map((mins) => (
+              {[5, 10, 15, 30].map((mins) => (
                 <Pressable
                   key={mins}
                   style={styles.snoozeOptionBtn}
                   onPress={() => handleApplySnooze(mins)}
                 >
-                  <Ionicons name="time-outline" size={20} color="#0D9488" />
+                  <Ionicons name="time-outline" size={20} color={colors.primary} />
                   <Text style={styles.snoozeOptionText}>Tunda {mins} Menit</Text>
                 </Pressable>
               ))}
@@ -210,13 +223,15 @@ export default function ModernReminderScreen() {
         </View>
       </Modal>
 
-      {/* MODAL SKIP DENGAN INPUT ALASAN (PRD REQUIREMENT) */}
+      {/* MODAL SKIP */}
       <Modal visible={skipModalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-              <Ionicons name="alert-circle" size={24} color="#EF4444" />
-              <Text style={[styles.modalTitle, { color: "#991B1B" }]}>Lewatkan Dosis</Text>
+              <Ionicons name="alert-circle" size={24} color={colors.statusMissed} />
+              <Text style={[styles.modalTitle, { color: colors.statusMissed }]}>
+                Lewatkan Dosis
+              </Text>
             </View>
             <Text style={styles.modalSubtitle}>
               Pilih alasan mengapa dosis obat ini dilewati untuk catatan riwayat dokter & keluarga:
@@ -244,7 +259,7 @@ export default function ModernReminderScreen() {
                     {reason}
                   </Text>
                   {selectedReason === reason && (
-                    <Ionicons name="checkmark" size={18} color="#0D9488" />
+                    <Ionicons name="checkmark" size={18} color={colors.primary} />
                   )}
                 </Pressable>
               ))}
@@ -253,7 +268,7 @@ export default function ModernReminderScreen() {
             <TextInput
               style={[styles.inputCustom, { marginTop: 10 }]}
               placeholder="Atau tulis alasan lain..."
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={colors.textMuted}
               value={customReason}
               onChangeText={setCustomReason}
             />
@@ -263,10 +278,10 @@ export default function ModernReminderScreen() {
                 style={[styles.modalActionBtn, { backgroundColor: "#F1F5F9" }]}
                 onPress={() => setSkipModalVisible(false)}
               >
-                <Text style={{ fontWeight: "700", color: "#475569" }}>Batal</Text>
+                <Text style={{ fontWeight: "700", color: colors.textSecondary }}>Batal</Text>
               </Pressable>
               <Pressable
-                style={[styles.modalActionBtn, { backgroundColor: "#EF4444" }]}
+                style={[styles.modalActionBtn, { backgroundColor: colors.statusMissed }]}
                 onPress={handleConfirmSkip}
               >
                 <Text style={{ fontWeight: "800", color: "#FFF" }}>Konfirmasi Lewat</Text>
@@ -284,7 +299,7 @@ export default function ModernReminderScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F0FDFA",
+    backgroundColor: colors.primaryLightest,
   },
   content: {
     flex: 1,
@@ -294,140 +309,159 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 16,
     width: "100%",
   },
   backBtn: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFF",
+    backgroundColor: colors.cardBackground,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#CCFBF1",
+    borderColor: colors.borderTeal,
     gap: 4,
+    ...shadows.subtle,
   },
   backBtnText: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#0F172A",
+    color: colors.textPrimary,
   },
   liveBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#CCFBF1",
+    backgroundColor: colors.primaryLight,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
     gap: 6,
+    borderWidth: 1,
+    borderColor: colors.borderTeal,
   },
   pulsingDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#0D9488",
+    backgroundColor: colors.primary,
   },
   liveBadgeText: {
     fontSize: 12,
     fontWeight: "800",
-    color: "#0F766E",
+    color: colors.primaryDark,
   },
   heroCircleOuter: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: "#CCFBF1",
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: "rgba(13, 148, 136, 0.12)",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 10,
-    shadowColor: "#0D9488",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 4,
+    marginTop: 8,
+  },
+  heroCircleMiddle: {
+    width: 126,
+    height: 126,
+    borderRadius: 63,
+    backgroundColor: colors.primaryLight,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: colors.borderTeal,
+    ...shadows.glow,
   },
   heroCircleInner: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#FFF",
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: colors.cardBackground,
     alignItems: "center",
     justifyContent: "center",
+    ...shadows.subtle,
   },
   timeLabel: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: "900",
-    color: "#0F766E",
-    marginTop: 18,
+    color: colors.primaryDark,
+    marginTop: 16,
   },
   medName: {
     fontSize: 24,
-    fontWeight: "800",
-    color: "#0F172A",
+    fontWeight: "900",
+    color: colors.textPrimary,
     marginTop: 4,
   },
+  instructionPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: colors.cardBackground,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: colors.borderTeal,
+  },
   medDetails: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#475569",
-    marginTop: 4,
+    fontSize: 13,
+    fontWeight: "700",
+    color: colors.primaryDark,
     textAlign: "center",
   },
   stockCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFF",
+    backgroundColor: colors.cardBackground,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
-    marginTop: 14,
+    borderColor: colors.border,
+    marginTop: 12,
     gap: 6,
+    ...shadows.subtle,
   },
   stockCardText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "600",
-    color: "#334155",
+    color: colors.textSecondary,
   },
   actionSection: {
     width: "100%",
-    marginTop: 26,
+    marginTop: 22,
     gap: 12,
   },
   primaryActionBtn: {
-    backgroundColor: "#0D9488",
+    backgroundColor: colors.primary,
     borderRadius: 18,
     paddingVertical: 18,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    shadowColor: "#0D9488",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.28,
-    shadowRadius: 10,
-    elevation: 4,
+    ...shadows.glow,
   },
   primaryActionText: {
     color: "#FFF",
     fontSize: 17,
-    fontWeight: "800",
+    fontWeight: "900",
   },
   secondaryActionBtn: {
-    backgroundColor: "#FFF",
+    backgroundColor: colors.cardBackground,
     borderRadius: 18,
     paddingVertical: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,
-    borderColor: "#99F6E4",
+    borderColor: colors.borderTeal,
     gap: 8,
+    ...shadows.subtle,
   },
   secondaryActionText: {
-    color: "#0F766E",
+    color: colors.primaryDark,
     fontSize: 15,
     fontWeight: "800",
   },
@@ -436,7 +470,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   skipBtnText: {
-    color: "#DC2626",
+    color: colors.statusMissed,
     fontSize: 14,
     fontWeight: "700",
   },
@@ -448,44 +482,45 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalBox: {
-    backgroundColor: "#FFF",
+    backgroundColor: colors.cardBackground,
     borderRadius: 24,
     padding: 22,
     width: "100%",
     maxWidth: 400,
+    ...shadows.card,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: "800",
-    color: "#0F172A",
+    color: colors.textPrimary,
   },
   modalSubtitle: {
     fontSize: 13,
-    color: "#64748B",
+    color: colors.textSecondary,
     marginTop: 4,
     marginBottom: 10,
   },
   snoozeOptionBtn: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F0FDFA",
+    backgroundColor: colors.primaryLightest,
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
-    borderColor: "#CCFBF1",
+    borderColor: colors.borderTeal,
     gap: 10,
   },
   snoozeOptionText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "700",
-    color: "#0F766E",
+    color: colors.primaryDark,
   },
   modalCloseBtn: {
     alignItems: "center",
     paddingVertical: 10,
   },
   modalCloseText: {
-    color: "#64748B",
+    color: colors.textSecondary,
     fontWeight: "700",
     fontSize: 14,
   },
@@ -495,26 +530,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#F8FAFC",
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: colors.border,
     borderRadius: 12,
     padding: 12,
   },
   reasonOptionActive: {
-    borderColor: "#0D9488",
-    backgroundColor: "#F0FDFA",
+    borderColor: colors.primary,
+    backgroundColor: colors.primaryLightest,
   },
   reasonText: {
     fontSize: 13,
-    color: "#334155",
+    color: colors.textSecondary,
     fontWeight: "600",
   },
   reasonTextActive: {
-    color: "#0F766E",
+    color: colors.primaryDark,
     fontWeight: "800",
   },
   inputCustom: {
     borderWidth: 1,
-    borderColor: "#CBD5E1",
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,

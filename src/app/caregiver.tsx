@@ -4,6 +4,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-nati
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import BottomNav from "../components/BottomNav";
 import { useApp } from "../context/AppContext";
+import { colors, shadows } from "../styles/theme";
 
 export default function ModernCaregiverScreen() {
   const insets = useSafeAreaInsets();
@@ -12,7 +13,7 @@ export default function ModernCaregiverScreen() {
   const missed = medicines.filter((m) => m.status === "missed");
   const taken = medicines.filter((m) => m.status === "taken");
 
-  // Grafik Mingguan (Dummy Kepatuhan Pasien)
+  // Grafik Mingguan (Kepatuhan Pasien)
   const weeklyStats = [
     { day: "Sen", percent: 100 },
     { day: "Sel", percent: 85 },
@@ -28,9 +29,9 @@ export default function ModernCaregiverScreen() {
   );
 
   const getBarColor = (p: number) => {
-    if (p >= 85) return "#0D9488";
-    if (p >= 70) return "#F59E0B";
-    return "#EF4444";
+    if (p >= 85) return colors.primary;
+    if (p >= 70) return colors.statusSnoozed;
+    return colors.statusMissed;
   };
 
   const handleExportPDF = () => {
@@ -57,16 +58,16 @@ export default function ModernCaregiverScreen() {
               </Text>
             </View>
             <View style={styles.avatarFamily}>
-              <Ionicons name="people" size={24} color="#0D9488" />
+              <Ionicons name="people" size={24} color={colors.primary} />
             </View>
           </View>
 
-          {/* CRITICAL ALERT: Obat Terlewat (P2 / Core PRD) */}
+          {/* CRITICAL ALERT: Obat Terlewat */}
           {missed.length > 0 ? (
             missed.map((m) => (
               <View key={m.id} style={styles.criticalCard}>
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                  <Ionicons name="warning" size={22} color="#DC2626" />
+                  <Ionicons name="warning" size={22} color={colors.statusMissed} />
                   <Text style={styles.criticalTitle}>Perhatian: Obat Terlewat!</Text>
                 </View>
                 <Text style={styles.criticalDesc}>
@@ -84,7 +85,9 @@ export default function ModernCaregiverScreen() {
             ))
           ) : (
             <View style={styles.goodCard}>
-              <Ionicons name="shield-checkmark" size={24} color="#0D9488" />
+              <View style={styles.goodIconWrap}>
+                <Ionicons name="shield-checkmark" size={22} color={colors.primary} />
+              </View>
               <View style={{ flex: 1, marginLeft: 12 }}>
                 <Text style={styles.goodTitle}>Semua Terkendali</Text>
                 <Text style={styles.goodDesc}>Tidak ada jadwal obat yang terlewat hari ini.</Text>
@@ -97,32 +100,37 @@ export default function ModernCaregiverScreen() {
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
               <View>
                 <Text style={styles.analyticsTitle}>Rata-Rata Kepatuhan Mingguan</Text>
-                <Text style={styles.analyticsSub}>7 hari terakhir</Text>
+                <Text style={styles.analyticsSub}>7 hari terakhir pemantauan</Text>
               </View>
-              <Text style={styles.analyticsScore}>{averageWeekly}%</Text>
+              <View style={styles.scorePill}>
+                <Text style={styles.analyticsScore}>{averageWeekly}%</Text>
+              </View>
             </View>
 
             {/* Bar Chart Visual */}
             <View style={styles.chartRow}>
               {weeklyStats.map((item, index) => (
                 <View key={index} style={styles.barCol}>
-                  <View
-                    style={[
-                      styles.barFill,
-                      {
-                        height: `${item.percent}%`,
-                        backgroundColor: getBarColor(item.percent),
-                      },
-                    ]}
-                  />
+                  <Text style={styles.barPercentText}>{item.percent}%</Text>
+                  <View style={styles.barTrack}>
+                    <View
+                      style={[
+                        styles.barFill,
+                        {
+                          height: `${item.percent}%`,
+                          backgroundColor: getBarColor(item.percent),
+                        },
+                      ]}
+                    />
+                  </View>
                   <Text style={styles.barDayText}>{item.day}</Text>
                 </View>
               ))}
             </View>
 
-            {/* Tombol Ekspor PDF (PRD P1) */}
+            {/* Tombol Ekspor PDF */}
             <Pressable style={styles.exportBtn} onPress={handleExportPDF}>
-              <Ionicons name="download-outline" size={18} color="#0D9488" />
+              <Ionicons name="download-outline" size={18} color={colors.primary} />
               <Text style={styles.exportBtnText}>Cetak / Ekspor Laporan PDF</Text>
             </Pressable>
           </View>
@@ -132,17 +140,25 @@ export default function ModernCaregiverScreen() {
           {taken.length > 0 ? (
             taken.map((m) => (
               <View key={m.id} style={styles.historyCard}>
-                <Ionicons name="checkmark-circle" size={24} color="#0D9488" />
+                <View style={styles.historyIconBox}>
+                  <Ionicons name="checkmark-circle" size={22} color={colors.primary} />
+                </View>
                 <View style={{ flex: 1, marginLeft: 12 }}>
                   <Text style={styles.historyName}>{m.name}</Text>
-                  <Text style={styles.historyDetails}>{m.dosage} • Terkonfirmasi sekitar {m.time}</Text>
+                  <Text style={styles.historyDetails}>{m.dosage} • Terkonfirmasi sekitar pukul {m.time} WIB</Text>
+                </View>
+                <View style={styles.verifiedBadge}>
+                  <Text style={styles.verifiedText}>Terkonfirmasi</Text>
                 </View>
               </View>
             ))
           ) : (
-            <Text style={{ fontSize: 13, color: "#94A3B8", fontStyle: "italic", marginTop: 4 }}>
-              Belum ada obat yang dikonfirmasi diminum hari ini.
-            </Text>
+            <View style={styles.emptyTakenBox}>
+              <Ionicons name="hourglass-outline" size={24} color={colors.textMuted} />
+              <Text style={styles.emptyTakenText}>
+                Belum ada obat yang dikonfirmasi diminum hari ini.
+              </Text>
+            </View>
           )}
         </ScrollView>
       </View>
@@ -154,7 +170,7 @@ export default function ModernCaregiverScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: colors.background,
   },
   content: {
     flex: 1,
@@ -169,42 +185,43 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 11,
     fontWeight: "800",
-    color: "#0D9488",
-    letterSpacing: 0.5,
+    color: colors.primary,
+    letterSpacing: 0.6,
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: "900",
-    color: "#0F172A",
+    color: colors.textPrimary,
     marginTop: 2,
   },
   headerSubtitle: {
     fontSize: 12,
-    color: "#64748B",
+    color: colors.textSecondary,
     marginTop: 2,
   },
   avatarFamily: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#CCFBF1",
+    backgroundColor: colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
-    borderColor: "#99F6E4",
+    borderColor: colors.borderTeal,
+    ...shadows.subtle,
   },
   criticalCard: {
-    backgroundColor: "#FEF2F2",
+    backgroundColor: colors.statusMissedBg,
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: "#FECACA",
+    borderColor: colors.statusMissedBorder,
     marginBottom: 14,
   },
   criticalTitle: {
     fontSize: 15,
     fontWeight: "800",
-    color: "#991B1B",
+    color: colors.statusMissed,
   },
   criticalDesc: {
     fontSize: 13,
@@ -213,14 +230,15 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   callPatientBtn: {
-    backgroundColor: "#DC2626",
-    borderRadius: 12,
+    backgroundColor: colors.statusMissed,
+    borderRadius: 14,
     paddingVertical: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
     marginTop: 12,
+    ...shadows.subtle,
   },
   callPatientBtnText: {
     color: "#FFF",
@@ -230,45 +248,62 @@ const styles = StyleSheet.create({
   goodCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F0FDFA",
+    backgroundColor: colors.primaryLightest,
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: "#99F6E4",
+    borderColor: colors.borderTeal,
     marginBottom: 14,
+  },
+  goodIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.primaryLight,
+    alignItems: "center",
+    justifyContent: "center",
   },
   goodTitle: {
     fontSize: 15,
     fontWeight: "800",
-    color: "#0F766E",
+    color: colors.primaryDark,
   },
   goodDesc: {
     fontSize: 12,
-    color: "#115E59",
+    color: colors.primaryDeep,
     marginTop: 2,
   },
   analyticsCard: {
-    backgroundColor: "#FFF",
+    backgroundColor: colors.cardBackground,
     borderRadius: 22,
     padding: 18,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
-    marginBottom: 20,
+    borderColor: colors.border,
+    marginBottom: 18,
+    ...shadows.subtle,
   },
   analyticsTitle: {
     fontSize: 14,
     fontWeight: "800",
-    color: "#0F172A",
+    color: colors.textPrimary,
   },
   analyticsSub: {
     fontSize: 11,
-    color: "#64748B",
+    color: colors.textSecondary,
     marginTop: 2,
   },
+  scorePill: {
+    backgroundColor: colors.primaryLight,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.borderTeal,
+  },
   analyticsScore: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "900",
-    color: "#0D9488",
+    color: colors.primaryDark,
   },
   chartRow: {
     flexDirection: "row",
@@ -284,14 +319,28 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "flex-end",
   },
-  barFill: {
+  barPercentText: {
+    fontSize: 9,
+    fontWeight: "700",
+    color: colors.textMuted,
+    marginBottom: 3,
+  },
+  barTrack: {
     width: 22,
+    height: 80,
+    backgroundColor: "#F1F5F9",
+    borderRadius: 8,
+    justifyContent: "flex-end",
+    overflow: "hidden",
+  },
+  barFill: {
+    width: "100%",
     borderRadius: 8,
   },
   barDayText: {
     fontSize: 11,
     fontWeight: "700",
-    color: "#64748B",
+    color: colors.textSecondary,
     marginTop: 8,
   },
   exportBtn: {
@@ -299,42 +348,80 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    backgroundColor: "#F0FDFA",
+    backgroundColor: colors.primaryLightest,
     borderRadius: 14,
     paddingVertical: 12,
     marginTop: 16,
     borderWidth: 1,
-    borderColor: "#CCFBF1",
+    borderColor: colors.borderTeal,
   },
   exportBtnText: {
     fontSize: 13,
     fontWeight: "800",
-    color: "#0F766E",
+    color: colors.primaryDark,
   },
   sectionHeading: {
     fontSize: 15,
     fontWeight: "800",
-    color: "#0F172A",
+    color: colors.textPrimary,
     marginBottom: 10,
   },
   historyCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFF",
+    backgroundColor: colors.cardBackground,
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: colors.border,
     marginBottom: 8,
+    ...shadows.subtle,
+  },
+  historyIconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: colors.primaryLight,
+    alignItems: "center",
+    justifyContent: "center",
   },
   historyName: {
     fontSize: 14,
     fontWeight: "800",
-    color: "#0F172A",
+    color: colors.textPrimary,
   },
   historyDetails: {
-    fontSize: 12,
-    color: "#64748B",
+    fontSize: 11,
+    color: colors.textSecondary,
     marginTop: 2,
+  },
+  verifiedBadge: {
+    backgroundColor: colors.primaryLightest,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.borderTeal,
+  },
+  verifiedText: {
+    fontSize: 10,
+    fontWeight: "800",
+    color: colors.primaryDark,
+  },
+  emptyTakenBox: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.cardBackground,
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: 6,
+  },
+  emptyTakenText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    fontStyle: "italic",
+    textAlign: "center",
   },
 });

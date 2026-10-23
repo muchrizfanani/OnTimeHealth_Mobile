@@ -1,92 +1,183 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { colors } from '../styles/theme';
+import { StyleSheet, Text, View } from 'react-native';
+import { colors, shadows } from '../styles/theme';
 
 interface SummaryCardProps {
   total: number;
   taken: number;
   percentage: number;
+  isSeniorMode?: boolean;
 }
 
-export const SummaryCard: React.FC<SummaryCardProps> = ({ total, taken, percentage }) => {
+export const SummaryCard: React.FC<SummaryCardProps> = ({
+  total,
+  taken,
+  percentage,
+  isSeniorMode = false,
+}) => {
+  const roundedPercent = Math.round(percentage);
+  const remaining = Math.max(0, total - taken);
+
   return (
-    <View style={styles.cardContainer}>
-      <View style={styles.infoCol}>
-        <Text style={styles.title}>Kepatuhan Hari Ini</Text>
-        <Text style={styles.subtitle}>
-          {taken} dari {total} obat sudah diminum
-        </Text>
-        {/* Progress bar visual */}
-        <View style={styles.progressBarBackground}>
-          <View
-            style={[
-              styles.progressBarFill,
-              // INLINE STYLE: Mengatur lebar progress bar secara dinamis sesuai percentage
-              { width: `${Math.min(Math.max(percentage, 0), 100)}%` },
-            ]}
-          />
+    <View style={[styles.cardContainer, isSeniorMode && styles.cardSenior]}>
+      {/* Header Baris Ringkasan */}
+      <View style={styles.headerRow}>
+        <View style={styles.badgeRow}>
+          <View style={styles.iconTag}>
+            <Ionicons name="shield-checkmark" size={14} color="#FFF" />
+          </View>
+          <Text style={styles.tagText}>KEPATUHAN HARI INI</Text>
+        </View>
+        <View style={styles.percentBadge}>
+          <Text style={styles.percentText}>{roundedPercent}%</Text>
         </View>
       </View>
-      <View style={styles.percentBadge}>
-        <Text style={styles.percentText}>{Math.round(percentage)}%</Text>
+
+      <Text style={[styles.title, isSeniorMode && { fontSize: 20 }]}>
+        {roundedPercent >= 80
+          ? 'Kepatuhan Sangat Baik! 🌟'
+          : roundedPercent >= 50
+          ? 'Jaga Terus Disiplin Obatmu 💊'
+          : 'Ada Jadwal yang Belum Selesai ⏰'}
+      </Text>
+
+      <Text style={[styles.subtitle, isSeniorMode && { fontSize: 15 }]}>
+        {taken} dari {total} obat sudah berhasil diminum tepat waktu.
+      </Text>
+
+      {/* Progress Bar Visual */}
+      <View style={styles.progressBarBackground}>
+        <View
+          style={[
+            styles.progressBarFill,
+            { width: `${Math.min(Math.max(roundedPercent, 0), 100)}%` },
+          ]}
+        />
+      </View>
+
+      {/* 3 Metric Pills */}
+      <View style={styles.metricsRow}>
+        <View style={styles.metricItem}>
+          <Text style={styles.metricLabel}>Total Jadwal</Text>
+          <Text style={styles.metricValue}>{total}</Text>
+        </View>
+        <View style={styles.metricDivider} />
+        <View style={styles.metricItem}>
+          <Text style={styles.metricLabel}>Sudah Diminum</Text>
+          <Text style={[styles.metricValue, { color: '#A7F3D0' }]}>{taken}</Text>
+        </View>
+        <View style={styles.metricDivider} />
+        <View style={styles.metricItem}>
+          <Text style={styles.metricLabel}>Sisa Belum</Text>
+          <Text style={[styles.metricValue, { color: '#FDE68A' }]}>{remaining}</Text>
+        </View>
       </View>
     </View>
   );
 };
 
-// ==========================================
-// EXTERNAL STYLES: Card Ringkasan Kepatuhan
-// ==========================================
 const styles = StyleSheet.create({
   cardContainer: {
     backgroundColor: colors.primary,
-    borderRadius: 16,
-    padding: 18,
+    borderRadius: 22,
+    padding: 20,
+    marginVertical: 12,
+    ...shadows.glow,
+  },
+  cardSenior: {
+    padding: 24,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  badgeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginVertical: 12,
-    shadowColor: colors.primaryDark,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
+    gap: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
   },
-  infoCol: {
-    flex: 1,
-    marginRight: 16,
+  iconTag: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tagText: {
+    color: '#FFF',
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+  },
+  percentBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  percentText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: '900',
   },
   title: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: '700',
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: '800',
+    marginTop: 2,
   },
   subtitle: {
-    color: '#DCEBFA',
+    color: colors.primaryLight,
     fontSize: 13,
     marginTop: 4,
+    fontWeight: '500',
   },
   progressBarBackground: {
-    height: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 4,
-    marginTop: 12,
+    height: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderRadius: 5,
+    marginTop: 14,
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
     backgroundColor: '#FFFFFF',
-    borderRadius: 4,
+    borderRadius: 5,
   },
-  percentBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  metricsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.12)',
+    borderRadius: 14,
     paddingVertical: 10,
     paddingHorizontal: 14,
-    borderRadius: 12,
+    marginTop: 16,
   },
-  percentText: {
-    color: colors.white,
-    fontSize: 20,
+  metricItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  metricLabel: {
+    color: colors.primaryLight,
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  metricValue: {
+    color: '#FFF',
+    fontSize: 16,
     fontWeight: '800',
+    marginTop: 2,
+  },
+  metricDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
 });

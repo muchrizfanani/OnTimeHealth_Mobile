@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../context/AppContext";
+import { colors, shadows } from "../styles/theme";
 import { Medicine, MedicineForm } from "../types/medicine";
 
 export default function AddMedicationScreen() {
@@ -23,7 +24,7 @@ export default function AddMedicationScreen() {
 
   const [step, setStep] = useState<number>(1);
 
-  // Form State (5 Langkah sesuai PRD)
+  // Form State (5 Langkah)
   const [name, setName] = useState("");
   const [form, setForm] = useState<MedicineForm>("Tablet");
   const [dosage, setDosage] = useState("1 Tablet (500 mg)");
@@ -42,15 +43,17 @@ export default function AddMedicationScreen() {
     if (step < 5) {
       setStep(step + 1);
     } else {
-      // Simpan Obat
+      // Simpan Obat Baru
       const newMed: Medicine = {
         id: `med-${Date.now()}`,
         name: name.trim(),
         dosage: dosage.trim(),
+        dose: dosage.trim(),
         form,
         time: time.trim() || "08:00",
         status: "pending",
         note: specialNote.trim() ? `${mealRule} • ${specialNote.trim()}` : mealRule,
+        instruction: specialNote.trim() ? `${mealRule} • ${specialNote.trim()}` : mealRule,
         frequency,
         duration,
         stock: parseInt(stock, 10) || 10,
@@ -77,15 +80,16 @@ export default function AddMedicationScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: "#F8FAFC" }}
+      style={{ flex: 1, backgroundColor: colors.background }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
+      {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <Pressable
           style={styles.backBtn}
           onPress={() => (step > 1 ? setStep(step - 1) : router.back())}
         >
-          <Ionicons name="arrow-back" size={22} color="#0F172A" />
+          <Ionicons name="arrow-back" size={20} color={colors.textPrimary} />
         </Pressable>
         <View style={{ flex: 1, marginLeft: 12 }}>
           <Text style={[styles.headerTitle, isSeniorMode && { fontSize: 20 }]}>
@@ -94,7 +98,7 @@ export default function AddMedicationScreen() {
           <Text style={styles.headerSubtitle}>Langkah {step} dari 5</Text>
         </View>
         <Pressable onPress={() => router.back()}>
-          <Ionicons name="close-circle-outline" size={26} color="#64748B" />
+          <Ionicons name="close-circle-outline" size={26} color={colors.textMuted} />
         </Pressable>
       </View>
 
@@ -108,7 +112,7 @@ export default function AddMedicationScreen() {
         {step === 1 && (
           <View style={styles.stepCard}>
             <View style={styles.badgeStep}>
-              <Ionicons name="medkit-outline" size={24} color="#0D9488" />
+              <Ionicons name="medkit" size={24} color={colors.primary} />
             </View>
             <Text style={styles.stepTitle}>Apa nama obat yang diminum?</Text>
             <Text style={styles.stepDesc}>Ketik nama obat sesuai resep dokter atau kemasan.</Text>
@@ -116,7 +120,7 @@ export default function AddMedicationScreen() {
             <TextInput
               style={[styles.input, isSeniorMode && styles.inputSenior]}
               placeholder="Contoh: Parasetamol, Amlodipine"
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={colors.textMuted}
               value={name}
               onChangeText={setName}
               autoFocus
@@ -124,9 +128,9 @@ export default function AddMedicationScreen() {
 
             <Text style={[styles.label, { marginTop: 18 }]}>Catatan Khusus (Opsional):</Text>
             <TextInput
-              style={[styles.input, { minHeight: 60 }]}
-              placeholder="Contoh: Jangan diminum dengan susu, habiskan obat"
-              placeholderTextColor="#94A3B8"
+              style={[styles.input, { minHeight: 70, textAlignVertical: "top" }]}
+              placeholder="Contoh: Jangan diminum bersama susu, habiskan antibiotik"
+              placeholderTextColor={colors.textMuted}
               value={specialNote}
               onChangeText={setSpecialNote}
               multiline
@@ -138,12 +142,12 @@ export default function AddMedicationScreen() {
         {step === 2 && (
           <View style={styles.stepCard}>
             <View style={styles.badgeStep}>
-              <Ionicons name="shapes-outline" size={24} color="#0D9488" />
+              <Ionicons name="shapes" size={24} color={colors.primary} />
             </View>
-            <Text style={styles.stepTitle}>Pilih bentuk obat</Text>
-            <Text style={styles.stepDesc}>Bentuk obat membantu visualisasi pengingat Anda.</Text>
+            <Text style={styles.stepTitle}>Pilih bentuk sediaan obat</Text>
+            <Text style={styles.stepDesc}>Bentuk obat membantu visualisasi pengingat yang jelas.</Text>
 
-            <View style={{ gap: 10, marginTop: 14 }}>
+            <View style={{ gap: 10, marginTop: 10 }}>
               {forms.map((item) => (
                 <Pressable
                   key={item.type}
@@ -156,20 +160,20 @@ export default function AddMedicationScreen() {
                   <View
                     style={[
                       styles.iconWrap,
-                      form === item.type && { backgroundColor: "#0D9488" },
+                      form === item.type && { backgroundColor: colors.primary },
                     ]}
                   >
                     <Ionicons
                       name={item.icon}
                       size={22}
-                      color={form === item.type ? "#FFF" : "#0D9488"}
+                      color={form === item.type ? "#FFF" : colors.primary}
                     />
                   </View>
                   <View style={{ flex: 1, marginLeft: 14 }}>
                     <Text
                       style={[
                         styles.optionTitle,
-                        form === item.type && { color: "#0F766E" },
+                        form === item.type && { color: colors.primaryDark },
                         isSeniorMode && { fontSize: 18 },
                       ]}
                     >
@@ -178,7 +182,7 @@ export default function AddMedicationScreen() {
                     <Text style={styles.optionDesc}>{item.desc}</Text>
                   </View>
                   {form === item.type && (
-                    <Ionicons name="checkmark-circle" size={22} color="#0D9488" />
+                    <Ionicons name="checkmark-circle" size={22} color={colors.primary} />
                   )}
                 </Pressable>
               ))}
@@ -190,21 +194,21 @@ export default function AddMedicationScreen() {
         {step === 3 && (
           <View style={styles.stepCard}>
             <View style={styles.badgeStep}>
-              <Ionicons name="nutrition-outline" size={24} color="#0D9488" />
+              <Ionicons name="nutrition" size={24} color={colors.primary} />
             </View>
             <Text style={styles.stepTitle}>Berapa dosis & aturan pakainya?</Text>
-            <Text style={styles.stepDesc}>Tentukan jumlah yang harus diminum setiap jadwal.</Text>
+            <Text style={styles.stepDesc}>Tentukan takaran yang harus diminum setiap jadwal.</Text>
 
             <Text style={styles.label}>Dosis per Konsumsi:</Text>
             <TextInput
               style={[styles.input, isSeniorMode && styles.inputSenior]}
               placeholder="Contoh: 1 Tablet (500 mg) / 10 ml"
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={colors.textMuted}
               value={dosage}
               onChangeText={setDosage}
             />
 
-            <Text style={[styles.label, { marginTop: 18 }]}>Aturan Minum:</Text>
+            <Text style={[styles.label, { marginTop: 18 }]}>Aturan Minum Terhadap Makanan:</Text>
             <View style={{ flexDirection: "row", gap: 8, marginTop: 8 }}>
               {mealRules.map((rule) => (
                 <Pressable
@@ -229,14 +233,14 @@ export default function AddMedicationScreen() {
           </View>
         )}
 
-        {/* STEP 4: FREKUENSI & JAM */}
+        {/* STEP 4: FREKUENSI & JAM ALARM */}
         {step === 4 && (
           <View style={styles.stepCard}>
             <View style={styles.badgeStep}>
-              <Ionicons name="alarm-outline" size={24} color="#0D9488" />
+              <Ionicons name="alarm" size={24} color={colors.primary} />
             </View>
             <Text style={styles.stepTitle}>Kapan obat harus diminum?</Text>
-            <Text style={styles.stepDesc}>Atur jam dan frekuensi alarm berbunyi.</Text>
+            <Text style={styles.stepDesc}>Atur jam dan frekuensi alarm berbunyi secara berkala.</Text>
 
             <Text style={styles.label}>Frekuensi Minum:</Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
@@ -261,11 +265,14 @@ export default function AddMedicationScreen() {
               ))}
             </View>
 
-            <Text style={[styles.label, { marginTop: 18 }]}>Waktu Alarm (Jam:Menit):</Text>
+            <Text style={[styles.label, { marginTop: 18 }]}>Waktu Alarm (Jam : Menit WIB):</Text>
             <TextInput
-              style={[styles.input, { fontSize: 24, textAlign: "center", fontWeight: "800", color: "#0F766E" }]}
+              style={[
+                styles.input,
+                { fontSize: 24, textAlign: "center", fontWeight: "900", color: colors.primaryDark },
+              ]}
               placeholder="08:00"
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={colors.textMuted}
               value={time}
               onChangeText={setTime}
             />
@@ -276,41 +283,41 @@ export default function AddMedicationScreen() {
         {step === 5 && (
           <View style={styles.stepCard}>
             <View style={styles.badgeStep}>
-              <Ionicons name="cube-outline" size={24} color="#0D9488" />
+              <Ionicons name="cube" size={24} color={colors.primary} />
             </View>
             <Text style={styles.stepTitle}>Durasi & Stok Obat</Text>
-            <Text style={styles.stepDesc}>Sistem akan memberi tahu jika stok obat tersisa sedikit.</Text>
+            <Text style={styles.stepDesc}>Sistem akan memberi tahu secara pintar bila stok tersisa sedikit.</Text>
 
             <Text style={styles.label}>Durasi Pengobatan:</Text>
             <TextInput
               style={styles.input}
               placeholder="Contoh: 7 hari / 30 hari / Rutin"
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={colors.textMuted}
               value={duration}
               onChangeText={setDuration}
             />
 
-            <Text style={[styles.label, { marginTop: 18 }]}>Stok Fisik Tersedia:</Text>
+            <Text style={[styles.label, { marginTop: 18 }]}>Jumlah Stok Fisik Tersedia:</Text>
             <TextInput
               style={styles.input}
               placeholder="Contoh: 20"
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={colors.textMuted}
               keyboardType="numeric"
               value={stock}
               onChangeText={setStock}
             />
 
             <View style={styles.stockNoticeBox}>
-              <Ionicons name="notifications" size={20} color="#0D9488" />
+              <Ionicons name="notifications" size={20} color={colors.primary} />
               <Text style={styles.stockNoticeText}>
-                Smart Reminder akan otomatis memperingatkan Anda jika stok tersisa $\le 3$ dosis.
+                Smart Reminder akan otomatis memperingatkan Anda saat stok obat tersisa ≤ 3 dosis agar tidak terlambat membeli isi ulang.
               </Text>
             </View>
           </View>
         )}
       </ScrollView>
 
-      {/* Footer Navigasi Tombol */}
+      {/* Footer Navigasi */}
       <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
         <Pressable style={styles.submitBtn} onPress={handleNext}>
           <Text style={[styles.submitBtnText, isSeniorMode && { fontSize: 18 }]}>
@@ -333,9 +340,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
     paddingBottom: 12,
-    backgroundColor: "#FFF",
+    backgroundColor: colors.cardBackground,
     borderBottomWidth: 1,
-    borderBottomColor: "#E2E8F0",
+    borderBottomColor: colors.border,
   },
   backBtn: {
     width: 40,
@@ -347,12 +354,12 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 17,
-    fontWeight: "800",
-    color: "#0F172A",
+    fontWeight: "900",
+    color: colors.textPrimary,
   },
   headerSubtitle: {
     fontSize: 12,
-    color: "#64748B",
+    color: colors.textSecondary,
     marginTop: 2,
     fontWeight: "600",
   },
@@ -362,95 +369,93 @@ const styles = StyleSheet.create({
   },
   progressBarFill: {
     height: 4,
-    backgroundColor: "#0D9488",
+    backgroundColor: colors.primary,
   },
   content: {
     padding: 20,
   },
   stepCard: {
-    backgroundColor: "#FFF",
+    backgroundColor: colors.cardBackground,
     borderRadius: 24,
     padding: 22,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    elevation: 3,
+    borderColor: colors.border,
+    ...shadows.card,
   },
   badgeStep: {
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: "#CCFBF1",
+    backgroundColor: colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: colors.borderTeal,
   },
   stepTitle: {
     fontSize: 20,
-    fontWeight: "800",
-    color: "#0F172A",
+    fontWeight: "900",
+    color: colors.textPrimary,
   },
   stepDesc: {
     fontSize: 13,
-    color: "#64748B",
+    color: colors.textSecondary,
     marginTop: 4,
-    marginBottom: 20,
+    marginBottom: 18,
   },
   label: {
     fontSize: 13,
-    fontWeight: "700",
-    color: "#334155",
+    fontWeight: "800",
+    color: colors.textPrimary,
     marginBottom: 6,
   },
   input: {
     backgroundColor: "#F8FAFC",
     borderWidth: 1.5,
-    borderColor: "#CBD5E1",
+    borderColor: colors.border,
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 15,
     fontWeight: "600",
-    color: "#0F172A",
+    color: colors.textPrimary,
   },
   inputSenior: {
     fontSize: 18,
     paddingVertical: 18,
     borderWidth: 2,
-    borderColor: "#0F766E",
+    borderColor: colors.primaryDark,
   },
   optionCard: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#F8FAFC",
     borderWidth: 1.5,
-    borderColor: "#E2E8F0",
+    borderColor: colors.border,
     borderRadius: 18,
     padding: 16,
   },
   optionCardActive: {
-    borderColor: "#0D9488",
-    backgroundColor: "#F0FDFA",
+    borderColor: colors.primary,
+    backgroundColor: colors.primaryLightest,
   },
   iconWrap: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#CCFBF1",
+    backgroundColor: colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
   },
   optionTitle: {
     fontSize: 16,
     fontWeight: "800",
-    color: "#0F172A",
+    color: colors.textPrimary,
   },
   optionDesc: {
     fontSize: 12,
-    color: "#64748B",
+    color: colors.textSecondary,
     marginTop: 2,
   },
   chip: {
@@ -459,16 +464,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: "#F1F5F9",
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: colors.border,
   },
   chipActive: {
-    backgroundColor: "#0D9488",
-    borderColor: "#0D9488",
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   chipText: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#475569",
+    color: colors.textSecondary,
   },
   chipTextActive: {
     color: "#FFF",
@@ -476,44 +481,41 @@ const styles = StyleSheet.create({
   stockNoticeBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F0FDFA",
-    borderRadius: 14,
+    backgroundColor: colors.primaryLightest,
+    borderRadius: 16,
     padding: 14,
     marginTop: 20,
     borderWidth: 1,
-    borderColor: "#99F6E4",
+    borderColor: colors.borderTeal,
     gap: 10,
   },
   stockNoticeText: {
     flex: 1,
     fontSize: 12,
-    color: "#0F766E",
+    color: colors.primaryDark,
     fontWeight: "600",
+    lineHeight: 18,
   },
   footer: {
-    backgroundColor: "#FFF",
+    backgroundColor: colors.cardBackground,
     paddingHorizontal: 20,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "#E2E8F0",
+    borderTopColor: colors.border,
   },
   submitBtn: {
-    backgroundColor: "#0D9488",
+    backgroundColor: colors.primary,
     borderRadius: 16,
     paddingVertical: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    shadowColor: "#0D9488",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
+    ...shadows.glow,
   },
   submitBtnText: {
     color: "#FFF",
     fontSize: 16,
-    fontWeight: "800",
+    fontWeight: "900",
   },
 });

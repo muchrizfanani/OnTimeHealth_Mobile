@@ -1,28 +1,40 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { colors } from '../constants/styles';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { colors, shadows } from '../styles/theme';
 
 interface HeaderProps {
   userName: string;
   subtitle?: string;
   avatarLetter?: string;
+  onPressAvatar?: () => void;
+  rightAction?: React.ReactNode;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   userName,
   subtitle = 'Jangan lupa minum obat tepat waktu',
   avatarLetter = 'S',
+  onPressAvatar,
+  rightAction,
 }) => {
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
-        <Text style={styles.greeting}>Selamat pagi,</Text>
+        <Text style={styles.greeting}>Halo, selamat beraktivitas 👋</Text>
         <Text style={styles.name}>{userName}</Text>
         <Text style={styles.subtitle}>{subtitle}</Text>
       </View>
-      <View style={styles.avatar}>
-        <Text style={styles.avatarText}>{avatarLetter}</Text>
-      </View>
+      {rightAction ? (
+        rightAction
+      ) : (
+        <Pressable
+          style={styles.avatar}
+          onPress={onPressAvatar}
+          android_ripple={{ color: 'rgba(13, 148, 136, 0.2)', borderless: true }}
+        >
+          <Text style={styles.avatarText}>{avatarLetter}</Text>
+        </Pressable>
+      )}
     </View>
   );
 };
@@ -32,26 +44,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 14,
   },
   textContainer: {
     flex: 1,
+    paddingRight: 12,
   },
   greeting: {
-    fontSize: 13,
-    color: colors.muted,
+    fontSize: 12,
+    color: colors.textSecondary,
     fontWeight: '600',
+    letterSpacing: 0.2,
   },
   name: {
     fontSize: 22,
-    fontWeight: '800',
-    color: colors.text,
+    fontWeight: '900',
+    color: colors.textPrimary,
     marginTop: 2,
+    letterSpacing: -0.3,
   },
   subtitle: {
     fontSize: 13,
-    color: colors.muted,
+    color: colors.primaryDark,
     marginTop: 2,
+    fontWeight: '600',
   },
   avatar: {
     width: 48,
@@ -60,12 +76,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: colors.border,
+    borderWidth: 2,
+    borderColor: colors.borderTeal,
+    ...shadows.subtle,
   },
   avatarText: {
     fontSize: 20,
-    fontWeight: '800',
-    color: colors.primary,
+    fontWeight: '900',
+    color: colors.primaryDark,
   },
 });

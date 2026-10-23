@@ -1,37 +1,57 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
-import { colors } from '../styles/theme';
+import { StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle } from 'react-native';
+import { colors, shadows } from '../styles/theme';
 
 interface PrimaryButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'danger';
+  variant?: 'primary' | 'secondary' | 'danger' | 'outline';
+  icon?: keyof typeof Ionicons.glyphMap;
   style?: ViewStyle;
+  textStyle?: TextStyle;
+  isSeniorMode?: boolean;
 }
 
 export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
   title,
   onPress,
   variant = 'primary',
+  icon,
   style,
+  textStyle,
+  isSeniorMode = false,
 }) => {
   const getVariantStyle = () => {
     switch (variant) {
       case 'secondary':
         return {
-          backgroundColor: colors.primaryLight,
-          textColor: colors.primary,
+          backgroundColor: colors.primaryLightest,
+          textColor: colors.primaryDark,
+          borderColor: colors.borderTeal,
+          borderWidth: 1.5,
         };
       case 'danger':
         return {
           backgroundColor: colors.statusMissedBg,
           textColor: colors.statusMissed,
+          borderColor: colors.statusMissedBorder,
+          borderWidth: 1,
+        };
+      case 'outline':
+        return {
+          backgroundColor: 'transparent',
+          textColor: colors.primary,
+          borderColor: colors.primary,
+          borderWidth: 1.5,
         };
       case 'primary':
       default:
         return {
           backgroundColor: colors.primary,
           textColor: colors.white,
+          borderColor: 'transparent',
+          borderWidth: 0,
         };
     }
   };
@@ -44,16 +64,30 @@ export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
       onPress={onPress}
       style={[
         styles.button,
-        // INLINE STYLE: Mengubah warna tombol sesuai varian dinamis
-        { backgroundColor: currentVariant.backgroundColor },
+        isSeniorMode && styles.buttonSenior,
+        {
+          backgroundColor: currentVariant.backgroundColor,
+          borderColor: currentVariant.borderColor,
+          borderWidth: currentVariant.borderWidth,
+        },
+        variant === 'primary' && shadows.glow,
         style,
       ]}
     >
+      {icon && (
+        <Ionicons
+          name={icon}
+          size={isSeniorMode ? 22 : 18}
+          color={currentVariant.textColor}
+          style={{ marginRight: 8 }}
+        />
+      )}
       <Text
         style={[
           styles.buttonText,
-          // INLINE STYLE: Mengubah warna teks tombol dinamis
+          isSeniorMode && { fontSize: 18 },
           { color: currentVariant.textColor },
+          textStyle,
         ]}
       >
         {title}
@@ -62,24 +96,22 @@ export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
   );
 };
 
-// ==========================================
-// EXTERNAL STYLES: Dibuat terpisah
-// ==========================================
 const styles = StyleSheet.create({
   button: {
-    paddingVertical: 14,
+    paddingVertical: 15,
     paddingHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: 16,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+  },
+  buttonSenior: {
+    paddingVertical: 18,
+    borderRadius: 18,
   },
   buttonText: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '800',
+    letterSpacing: 0.2,
   },
 });
