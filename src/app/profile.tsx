@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Pressable,
   ScrollView,
@@ -13,15 +14,21 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import BottomNav from "../components/BottomNav";
 import { useApp } from "../context/AppContext";
+import { simulateCloudSync } from "../services/healthApiService";
 import { colors, shadows } from "../styles/theme";
 
 export default function ProfileScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { userProfile, currentRole, switchRole, isSeniorMode, toggleSeniorMode } = useApp();
+  const { userProfile, medicines, currentRole, switchRole, isSeniorMode, toggleSeniorMode } = useApp();
 
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [stockAlertEnabled, setStockAlertEnabled] = useState(true);
+
+  // State untuk Fitur Cloud Sync Asynchronous
+  const [isSyncingCloud, setIsSyncingCloud] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
+  const [syncId, setSyncId] = useState<string | null>(null);
 
   const handleCallDoctor = () => {
     Alert.alert("Telepon Dokter", "Menghubungi dr. Hendra, Sp.PD (Klinik Mitra Sehat)...");
@@ -39,6 +46,31 @@ export default function ProfileScreen() {
         ? "Anda sekarang masuk sebagai Pasien (Ibu Siti Rahma)."
         : "Anda sekarang masuk sebagai Pendamping (Keluarga Ibu Siti)."
     );
+  };
+
+  // ===============================================================
+  // RUBRIK MODUL 3: Penggunaan .then(), .resolve(), dan .reject()
+  // ===============================================================
+  const handleSyncCloud = () => {
+    setIsSyncingCloud(true);
+
+    simulateCloudSync(userProfile.name, medicines.length)
+      .then((syncRes) => {
+        // Blok .then() berjalan ketika Promise memanggil resolve()
+        setLastSyncTime(syncRes.completedAt);
+        setSyncId(syncRes.syncId);
+        Alert.alert(
+          "☁️ Sinkronisasi Cloud Berhasil (.resolve)",
+          `Data obat ${userProfile.name} berhasil diunggah ke server cloud:\n\n• ID Sync: ${syncRes.syncId}\n• Status: ${syncRes.serverStatus}\n• Item: ${syncRes.itemsUploaded} data obat\n• Waktu: ${syncRes.completedAt}`
+        );
+      })
+      .catch((err: Error) => {
+        // Blok .catch() berjalan ketika Promise memanggil reject()
+        Alert.alert("⚠️ Gagal Sinkronisasi (.reject)", err.message);
+      })
+      .finally(() => {
+        setIsSyncingCloud(false);
+      });
   };
 
   const handleLogout = () => {
@@ -59,7 +91,7 @@ export default function ProfileScreen() {
               Profil Pengguna
             </Text>
             <Text style={styles.subtitle}>
-              Kelola data kesehatan, mode lansia & kontak darurat
+              Kelola data kesehatan, sinkronisasi cloud & kontak darurat
             </Text>
           </View>
 
@@ -99,6 +131,52 @@ export default function ProfileScreen() {
               </View>
               <Text style={styles.conditionText}>{userProfile.condition}</Text>
             </View>
+          </View>
+
+          {/* =============================================================== */}
+          {/* SINKRONISASI CLOUD MEDIS (DEMO MODUL 3: .then, .resolve, .reject)  */}
+          {/* =============================================================== */}
+          <View style={styles.sectionBox}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <View style={styles.cloudIconBox}>
+                <Ionicons name="cloud-upload" size={20} color={colors.primary} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.sectionTitle}>Sinkronisasi Cloud Medis</Text>
+                <Text style={styles.sectionSub}>Uji Custom Promise: .resolve(), .reject(), dan .then()</Text>
+              </View>
+            </View>
+
+            <Text style={styles.cloudDesc}>
+              Unggah {medicines.length} jadwal obat aktif ke server database keluarga/dokter secara asynchronous.
+            </Text>
+
+            {lastSyncTime && (
+              <View style={styles.syncBadgeBox}>
+                <Ionicons name="checkmark-done-circle" size={16} color={colors.primary} />
+                <Text style={styles.syncBadgeText}>
+                  Tersinkron ({syncId}): {lastSyncTime}
+                </Text>
+              </View>
+            )}
+
+            <Pressable
+              style={[styles.syncBtn, isSyncingCloud && { opacity: 0.7 }]}
+              onPress={handleSyncCloud}
+              disabled={isSyncingCloud}
+            >
+              {isSyncingCloud ? (
+                <>
+                  <ActivityIndicator size="small" color="#FFF" />
+                  <Text style={styles.syncBtnText}>Menghubungi Cloud Server...</Text>
+                </>
+              ) : (
+                <>
+                  <Ionicons name="cloud-upload-outline" size={18} color="#FFF" />
+                  <Text style={styles.syncBtnText}>Sinkronkan Jadwal Sekarang (.then)</Text>
+                </>
+              )}
+            </Pressable>
           </View>
 
           {/* Quick Role Switcher */}
@@ -426,10 +504,62 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     ...shadows.subtle,
   },
+  cloudIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: colors.primaryLight,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   sectionTitle: {
     fontSize: 15,
     fontWeight: "800",
     color: colors.textPrimary,
+  },
+  sectionSub: {
+    fontSize: 11,
+    color: colors.textSecondary,
+    marginTop: 1,
+  },
+  cloudDesc: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: 8,
+    lineHeight: 18,
+  },
+  syncBadgeBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: colors.primaryLightest,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: colors.borderTeal,
+  },
+  syncBadgeText: {
+    fontSize: 11,
+    color: colors.primaryDark,
+    fontWeight: "700",
+  },
+  syncBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.primary,
+    borderRadius: 14,
+    paddingVertical: 13,
+    gap: 8,
+    marginTop: 12,
+    ...shadows.subtle,
+  },
+  syncBtnText: {
+    color: "#FFF",
+    fontSize: 13,
+    fontWeight: "800",
   },
   sectionDesc: {
     fontSize: 12,
